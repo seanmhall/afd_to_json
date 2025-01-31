@@ -52,9 +52,9 @@ def create_json(rawtext):
     # Recently updated sections
     updated_line = re.search(r"\.{3}New ([A-Z\s,]+)\.+", sections[0])
     if updated_line != None:
-        output_json['new'] = []
+        output_json['recently_updated'] = []
         for updated_section in updated_line.group(1).split(","):
-            output_json['new'].append(re.sub(r"^\s+|\s+$", "", updated_section).lower())
+            output_json['recently_updated'].append(re.sub(r"^\s+|\s+$", "", updated_section).lower())
 
     ## Parse the header
     discussion_timestamp = re.search(r"^\s?(\d{3,4}\s[A-Z]{2}\s[A-Z]{3}\s[A-Za-z]{3}\s[A-Za-z]{3}\s\d{1,2}\s\d{4})", sections[0], re.MULTILINE).group(1)
@@ -89,6 +89,7 @@ def create_json(rawtext):
                 timestamp = timestamp.replace("Issued at ", "")
                 output_json['discussion'][section_title]['timestamp'] = timestamp
                 output_json['discussion'][section_title]['timestamp_unix'] = NWS_timestamp_to_unix(timestamp)
+                output_json['discussion'][section_title]['recently_updated'] = ('recently_updated' in output_json and section_title in output_json['recently_updated'])
                 continue
 
             # Now parse the main body text of the section
@@ -116,4 +117,5 @@ def main():
         json_file.write(json.dumps(forecast_json))
         print("> File written! "+OUTPUT_FILE_NAME)
 
-main()
+if __name__ == "__main__":
+    main()
