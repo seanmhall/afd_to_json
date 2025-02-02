@@ -66,6 +66,7 @@ def create_json(rawtext):
     sections[0] = re.sub(r"^[0-9A-Za-z\s\.',]+(\.[A-Z-0-9\s]+\.{3})", "\g<1>", sections[0])
 
     ### Parse individual sections of the discussion ###
+    timeframe = re.compile(r"\(.+\)") # e.g. "(Tonight through Sunday)"
 
     for section in sections:
         if (re.search(r"^\s+$", section) != None or section.find(".MTR ")) > -1:
@@ -77,21 +78,20 @@ def create_json(rawtext):
         
         for subsection in subsections:
             if re.search(r"\.[A-Z\s]+\.{3}", subsection) != None:
-                has_timeframe = re.search(r"\(.+\)", subsection) != None
                 subsection_info = subsection.split("\n")
                 section_title = subsection_info[0].replace(".", "").lower()
                 output_json['discussion'][section_title] = {}
                 for header_line in subsection_info[1:]:
-                    if (re.search(r"\(.+\)", header_line) != None):
+                    # If it's a timeframe
+                    if (re.search(timeframe, header_line) != None):
                         output_json['discussion'][section_title]['timeframe'] = re.sub(r"[\(\)]", "", header_line)
                         continue
+                    # If it's a timestamp e.g. "Issued at 1030 AM PST Sat Feb 1 2025"
                     if (header_line.find('Issued at') > -1):
                         timestamp = header_line.replace("Issued at ", "")
                         output_json['discussion'][section_title]['timestamp'] = timestamp
                         output_json['discussion'][section_title]['timestamp_unix'] = NWS_timestamp_to_unix(timestamp)
 
-                #output_json['discussion'][section_title]['timestamp'] = timestamp
-                #output_json['discussion'][section_title]['timestamp_unix'] = NWS_timestamp_to_unix(timestamp)
                 output_json['discussion'][section_title]['recently_updated'] = ('recently_updated' in output_json and section_title in output_json['recently_updated'])
                 continue
 
@@ -117,9 +117,8 @@ def main():
     
     forecast_json = create_json(forecast_text)
     # If an argument is passed to the script use that as the file name
-    if (len(sys.argv) > 1):
-        OUTPUT_FILE_NAME = sys.argv[1]
-    with open(OUTPUT_FILE_NAME, "w") as json_file:
+    newfile = sys.argv[1] if len(sys.argv) > 1 else OUTPUT_FILE_NAME
+    with open(newfile, "w") as json_file:
         json_file.write(json.dumps(forecast_json))
         print("> File written! "+OUTPUT_FILE_NAME)
 
