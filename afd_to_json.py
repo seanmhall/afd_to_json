@@ -2,7 +2,7 @@ import requests, re, json, pytz, time, sys
 from datetime import datetime
 
 # The default name of the file generated unless an argument is passed to the script
-OUTPUT_FILE_NAME = "afd_mtr.json" # The name of the json file that will be created by this script
+OUTPUT_FILE_NAME = "afd_mtr.json"
 NWS_DISCUSSION_URL = "https://forecast.weather.gov/product.php?site=NWS&issuedby=MTR&product=AFD&format=CI&version=1&glossary=0"
 
 def NWS_timestamp_to_unix(dstr):
