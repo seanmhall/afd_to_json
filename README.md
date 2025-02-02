@@ -9,4 +9,7 @@ python afd_to_json.py output_file.json
 
 This will create a file called ```output_file.json```. If you don't pass any arguments to the script the file name will be defined by the variable ```OUTPUT_FILE_NAME``` in the script.
 
+## Modules required
+
+This script requires the following Python modules to be installed: ```requests, pytz, re, json, datetime, time, sys```
 
